@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Ajouter un Événement</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; padding: 30px; }
+        .container { max-width: 700px; margin: auto; }
+        h1 { font-size: 28px; color: #1f2937; margin-bottom: 6px; }
+        .subtitle { color: #6b7280; margin-bottom: 30px; }
+        .card { background: white; border: 1px solid #d1d5db; border-radius: 8px; padding: 24px; margin-bottom: 20px; }
+        label { font-weight: bold; font-size: 14px; color: #1f2937; display: block; margin-bottom: 6px; }
+        input, select, textarea { width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; margin-bottom: 16px; font-family: 'Segoe UI', sans-serif; }
+        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .btn-submit { background: #2563eb; color: white; font-size: 16px; font-weight: bold; padding: 14px; border: none; border-radius: 6px; cursor: pointer; width: 100%; }
+        .btn-submit:hover { background: #1d4ed8; }
+        .alert-success { background: #d1fae5; border: 1px solid #10b981; color: #065f46; padding: 14px; border-radius: 6px; margin-bottom: 20px; }
+        .alert-error { background: #fee2e2; border: 1px solid #ef4444; color: #991b1b; padding: 14px; border-radius: 6px; margin-bottom: 20px; }
+        .extra-fields { display: none; }
+        .back { display: inline-block; margin-bottom: 20px; color: #2563eb; text-decoration: none; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <a th:href="@{/}" class="back">← Retour au dashboard</a>
+    <h1>➕ Ajouter un Événement</h1>
+    <p class="subtitle">Remplissez le formulaire pour créer un événement</p>
+
+    <div th:if="${message}" th:class="${succes} ? 'alert-success' : 'alert-error'" th:text="${message}"></div>
+
+    <form th:action="@{/ajouter}" method="post">
+        <div class="card">
+            <label>Type d'événement</label>
+            <select name="typeEvenement" id="typeEvenement" onchange="afficherChamps()">
+                <option value="Conférence">Conférence</option>
+                <option value="Atelier">Atelier</option>
+                <option value="Evenement social">Événement Social</option>
+            </select>
+
+            <label>Nom de l'événement</label>
+            <input type="text" name="nomEvenement" required />
+
+            <div class="row">
+                <div>
+                    <label>Date</label>
+                    <input type="date" name="date" required />
+                </div>
+                <div>
+                    <label>Lieu</label>
+                    <input type="text" name="lieu" required />
+                </div>
+            </div>
+
+            <div class="row">
+                <div>
+                    <label>Heure début</label>
+                    <input type="time" name="heureDebut" required />
+                </div>
+                <div>
+                    <label>Heure fin</label>
+                    <input type="time" name="heureFin" required />
+                </div>
+            </div>
+
+            <label>Description</label>
+            <textarea name="description" rows="3" required></textarea>
+
+            <div class="row">
+                <div>
+                    <label>Capacité maximale</label>
+                    <input type="number" name="capaciteMax" min="1" required />
+                </div>
+                <div>
+                    <label>Nombre d'inscrits</label>
+                    <input type="number" name="nbreInscrits" min="0" value="0" required />
+                </div>
+            </div>
+
+            <div class="row">
+                <div>
+                    <label>Organisateur</label>
+                    <input type="text" name="organisateur" required />
+                </div>
+                <div>
+                    <label>Prix (DT)</label>
+                    <input type="number" name="prix" min="0" step="0.01" value="0" required />
+                </div>
+            </div>
+
+            <label>Statut</label>
+            <select name="statut">
+                <option value="ouvert">Ouvert</option>
+                <option value="complet">Complet</option>
+                <option value="annulé">Annulé</option>
+                <option value="terminé">Terminé</option>
+            </select>
+        </div>
+
+        <!-- Champs Conférence -->
+        <div class="card extra-fields" id="champsConference">
+            <label>Intervenant</label>
+            <input type="text" name="intervenant" />
+            <label>Domaine</label>
+            <input type="text" name="domaine" />
+        </div>
+
+        <!-- Champs Atelier -->
+        <div class="card extra-fields" id="champsAtelier">
+            <label>Matériel nécessaire</label>
+            <input type="text" name="materielNecessaire" />
+            <label>Niveau</label>
+            <select name="niveau">
+                <option value="débutant">Débutant</option>
+                <option value="intermédiaire">Intermédiaire</option>
+                <option value="avancé">Avancé</option>
+            </select>
+        </div>
+
+        <!-- Champs Événement Social -->
+        <div class="card extra-fields" id="champsSocial">
+            <label>Thème</label>
+            <input type="text" name="theme" />
+            <label>Rafraîchissements</label>
+            <input type="text" name="refreshments" />
+        </div>
+
+        <button type="submit" class="btn-submit">➕ Ajouter l'événement</button>
+    </form>
+</div>
+
+<script>
+    function afficherChamps() {
+        var type = document.getElementById('typeEvenement').value;
+        document.getElementById('champsConference').style.display = 'none';
+        document.getElementById('champsAtelier').style.display = 'none';
+        document.getElementById('champsSocial').style.display = 'none';
+        if (type === 'Conférence') document.getElementById('champsConference').style.display = 'block';
+        else if (type === 'Atelier') document.getElementById('champsAtelier').style.display = 'block';
+        else document.getElementById('champsSocial').style.display = 'block';
+    }
+    afficherChamps();
+</script>
+</body>
+</html>

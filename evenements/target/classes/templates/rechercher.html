@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Rechercher un Événement</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; padding: 30px; }
+        .container { max-width: 700px; margin: auto; }
+        h1 { font-size: 28px; color: #1f2937; margin-bottom: 6px; }
+        .subtitle { color: #6b7280; margin-bottom: 30px; }
+        .card { background: white; border: 1px solid #d1d5db; border-radius: 8px; padding: 24px; margin-bottom: 20px; }
+        label { font-weight: bold; font-size: 14px; color: #1f2937; display: block; margin-bottom: 6px; }
+        .input-row { display: flex; gap: 12px; }
+        input[type="text"] { flex: 1; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; }
+        .btn { background: #2563eb; color: white; font-size: 14px; font-weight: bold; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; }
+        .btn:hover { background: #1d4ed8; }
+        .alert-error { background: #fee2e2; border: 1px solid #ef4444; color: #991b1b; padding: 14px; border-radius: 6px; }
+        .result-title { font-size: 16px; font-weight: bold; color: #1f2937; margin-bottom: 16px; }
+        .result-box { background: #f9fafb; border: 1px solid #d1d5db; border-radius: 6px; padding: 16px; font-size: 13px; line-height: 2; }
+        .result-box .row-item { display: flex; gap: 8px; }
+        .result-box .row-item span:first-child { font-weight: bold; min-width: 160px; }
+        .placeholder { color: #6b7280; font-style: italic; }
+        .back { display: inline-block; margin-bottom: 20px; color: #2563eb; text-decoration: none; }
+        .success-badge { color: #065f46; background: #d1fae5; padding: 2px 10px; border-radius: 12px; font-size: 13px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <a th:href="@{/}" class="back">← Retour au dashboard</a>
+    <h1>🔍 Rechercher un Événement</h1>
+    <p class="subtitle">Entrez le nom exact de l'événement</p>
+
+    <div class="card">
+        <label>Nom de l'événement</label>
+        <form th:action="@{/rechercher}" method="post">
+            <div class="input-row">
+                <input type="text" name="nomRecherche" th:value="${nomRecherche}" placeholder="Ex: Conférence Intelligence Artificielle" />
+                <button type="submit" class="btn">🔍 Rechercher</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="card">
+        <p class="result-title">📋 Résultat de la recherche</p>
+
+        <div th:if="${erreur}" class="alert-error" th:text="${erreur}"></div>
+
+        <div th:if="${evenement}" class="result-box">
+            <p><span class="success-badge">✅ Événement trouvé !</span></p>
+            <br/>
+            <div class="row-item"><span>📌 NOM :</span><span th:text="${evenement.nomEvenement}"></span></div>
+            <div class="row-item"><span>🏷️ TYPE :</span><span th:text="${evenement.typeEvenement}"></span></div>
+            <div class="row-item"><span>📅 DATE :</span><span th:text="${evenement.dateEvenement}"></span></div>
+            <div class="row-item"><span>🕐 HORAIRE :</span><span th:text="${evenement.heureDebut + ' - ' + evenement.heureFin}"></span></div>
+            <div class="row-item"><span>📍 LIEU :</span><span th:text="${evenement.lieu}"></span></div>
+            <div class="row-item"><span>👤 ORGANISATEUR :</span><span th:text="${evenement.organisateur}"></span></div>
+            <div class="row-item"><span>📝 DESCRIPTION :</span><span th:text="${evenement.description}"></span></div>
+            <div class="row-item"><span>💰 PRIX :</span><span th:text="${evenement.prix + ' DT'}"></span></div>
+            <div class="row-item"><span>👥 CAPACITÉ :</span><span th:text="${evenement.nbreInscrits + ' / ' + evenement.capaciteMax + ' inscrits'}"></span></div>
+            <div class="row-item"><span>📊 STATUT :</span><span th:text="${evenement.statut}"></span></div>
+        </div>
+
+        <p th:if="${evenement == null and erreur == null}" class="placeholder">
+            Aucune recherche effectuée. Entrez le nom d'un événement et cliquez sur Rechercher.
+        </p>
+    </div>
+</div>
+</body>
+</html>
