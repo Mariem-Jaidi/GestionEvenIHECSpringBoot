@@ -12,7 +12,7 @@ public class Atelier extends Evenement {
                    int capaciteMax, int nbreInscrits, String typeEvenement, String organisateur, String statut, float prix,
                    String date, String materielNecessaire, String niveau) {
         super(nomEvenement, heureDebut, heureFin, lieu, description, capaciteMax, nbreInscrits, "Atelier",
-                organisateur, "complet", prix, date);
+                organisateur, statut, prix, date);
         this.materielNecessaire = materielNecessaire;
         this.niveau = niveau;
     }

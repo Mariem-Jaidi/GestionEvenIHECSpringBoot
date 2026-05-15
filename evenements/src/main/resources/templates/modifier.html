@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Modifier un Événement</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; min-height: 100vh; }
+        .navbar {
+            background: linear-gradient(135deg, #003366, #0066cc);
+            padding: 0 40px; height: 64px;
+            display: flex; align-items: center; justify-content: space-between;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+        }
+        .navbar-brand { color: white; font-size: 20px; font-weight: 700; }
+        .back-btn {
+            color: white; text-decoration: none; font-size: 14px;
+            padding: 8px 16px; border-radius: 8px;
+            background: rgba(255,255,255,0.15); transition: background 0.2s;
+        }
+        .back-btn:hover { background: rgba(255,255,255,0.25); }
+        .container { max-width: 700px; margin: 36px auto; padding: 0 24px; }
+        .card {
+            background: white; border-radius: 16px; padding: 36px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+        }
+        h1 { font-size: 24px; color: #1f2937; margin-bottom: 28px; font-weight: 700; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+        .form-group { display: flex; flex-direction: column; }
+        .form-group.full { grid-column: 1 / -1; }
+        label { font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px; }
+        input, select, textarea {
+            padding: 11px 14px; border: 1.5px solid #d1d5db; border-radius: 10px;
+            font-size: 14px; color: #1f2937; outline: none; transition: border-color 0.2s;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        input:focus, select:focus, textarea:focus { border-color: #0066cc; }
+        textarea { resize: vertical; min-height: 80px; }
+        .btn-submit {
+            width: 100%; padding: 14px; border-radius: 10px; border: none;
+            background: linear-gradient(135deg, #0066cc, #003366);
+            color: white; font-size: 16px; font-weight: 700;
+            cursor: pointer; margin-top: 24px; transition: opacity 0.2s;
+        }
+        .btn-submit:hover { opacity: 0.9; }
+    </style>
+</head>
+<body>
+<nav class="navbar">
+    <div class="navbar-brand">🎓 IHEC Carthage — Gestion des Événements</div>
+    <a th:href="@{/dashboard}" class="back-btn">← Retour au dashboard</a>
+</nav>
+
+<div class="container">
+    <div class="card">
+        <h1>✏️ Modifier l'Événement</h1>
+        <form th:action="@{/modifier/{id}(id=${evenement.id})}" method="post">
+            <div th:if="${error}" style="
+    background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b;
+    padding: 14px 20px; border-radius: 10px; margin-bottom: 20px;
+    font-size: 14px; font-weight: 600;">
+                ❌ <span th:text="${error}"></span>
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Nom de l'événement *</label>
+                    <input type="text" name="nomEvenement" th:value="${evenement.nomEvenement}" required/>
+                </div>
+                <div class="form-group">
+                    <label>Date *</label>
+                    <input type="date" name="date" th:value="${evenement?.dateEvenement}"
+                           th:min="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}"/>                </div>
+                <div class="form-group">
+                    <label>Heure début *</label>
+                    <input type="text" name="heureDebut" th:value="${evenement.heureDebut}" placeholder="HH:MM" required/>
+                </div>
+                <div class="form-group">
+                    <label>Heure fin *</label>
+                    <input type="text" name="heureFin" th:value="${evenement.heureFin}" placeholder="HH:MM" required/>
+                </div>
+                <div class="form-group">
+                    <label>Lieu *</label>
+                    <input type="text" name="lieu" th:value="${evenement.lieu}" required/>
+                </div>
+                <div class="form-group">
+                    <label>Organisateur *</label>
+                    <input type="text" name="organisateur" th:value="${evenement.organisateur}" required/>
+                </div>
+                <div class="form-group">
+                    <label>Prix (DT) *</label>
+                    <input type="number" step="0.01" name="prix" th:value="${evenement.prix}" required/>
+                </div>
+                <div class="form-group">
+                    <label>Capacité maximale *</label>
+                    <input type="number" name="capaciteMax" th:value="${evenement.capaciteMax}" required/>
+                </div>
+                <div class="form-group">
+                    <label>Nombre d'inscrits *</label>
+                    <input type="number" name="nbreInscrits" th:value="${evenement.nbreInscrits}" required/>
+                </div>
+                <div class="form-group">
+                    <label>Statut *</label>
+                    <select name="statut">
+                        <option th:value="ouvert"  th:selected="${evenement.statut == 'ouvert'}">Ouvert</option>
+                        <option th:value="complet" th:selected="${evenement.statut == 'complet'}">Complet</option>
+                        <option th:value="annulé"  th:selected="${evenement.statut == 'annulé'}">Annulé</option>
+                        <option th:value="terminé" th:selected="${evenement.statut == 'terminé'}">Terminé</option>
+                    </select>
+                </div>
+                <div class="form-group full">
+                    <label>Description *</label>
+                    <textarea name="description" th:text="${evenement.description}" required></textarea>
+                </div>
+            </div>
+            <button type="submit" class="btn-submit">💾 Enregistrer les modifications</button>
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+        </form>
+    </div>
+</div>
+</body>
+</html>

@@ -1,29 +1,150 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
-    <title>Gestion des Événements - Dashboard</title>
+    <title>Dashboard - IHEC Événements</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .container { text-align: center; padding: 50px; }
-        h1 { font-size: 36px; color: #1f2937; margin-bottom: 10px; }
-        .subtitle { font-size: 18px; color: #6b7280; margin-bottom: 60px; }
-        .btn { display: block; width: 400px; padding: 22px; margin: 0 auto 20px; font-size: 18px; font-weight: bold; color: white; border: none; border-radius: 8px; cursor: pointer; text-decoration: none; text-align: center; }
-        .btn-primary { background: #2563eb; }
-        .btn-primary:hover { background: #1d4ed8; }
-        .btn-secondary { background: #10b981; }
-        .btn-secondary:hover { background: #059669; }
-        .footer { margin-top: 60px; color: #9ca3af; font-style: italic; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; min-height: 100vh; }
+        .navbar {
+            background: linear-gradient(135deg, #003366, #0066cc);
+            padding: 0 40px; height: 64px;
+            display: flex; align-items: center; justify-content: space-between;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+        }
+        .navbar-brand { color: white; font-size: 20px; font-weight: 700; }
+        .navbar-right { display: flex; align-items: center; gap: 16px; }
+        .navbar-user { color: rgba(255,255,255,0.85); font-size: 14px; }
+        .nav-btn {
+            padding: 8px 18px; border-radius: 8px; border: none;
+            font-size: 14px; font-weight: 600; cursor: pointer; text-decoration: none;
+            display: inline-block; transition: opacity 0.2s;
+        }
+        .btn-logout { background: rgba(231,76,60,0.85); color: white; }
+        .btn-logout:hover { opacity: 0.85; }
+        .container { max-width: 1100px; margin: 36px auto; padding: 0 24px; }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; }
+        .page-title { font-size: 28px; font-weight: 700; color: #1f2937; }
+        .btn-add {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            color: white; padding: 12px 24px; border-radius: 10px;
+            text-decoration: none; font-weight: 700; font-size: 15px;
+            transition: opacity 0.2s;
+        }
+        .btn-add:hover { opacity: 0.9; }
+        .btn-search {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white; padding: 12px 24px; border-radius: 10px;
+            text-decoration: none; font-weight: 700; font-size: 15px; margin-right: 10px;
+        }
+        .alert {
+            padding: 14px 20px; border-radius: 10px; margin-bottom: 20px;
+            font-size: 14px; font-weight: 600;
+        }
+        .alert-success { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
+        .alert-error { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+        .table-card {
+            background: white; border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07); overflow: hidden;
+        }
+        table { width: 100%; border-collapse: collapse; }
+        thead { background: linear-gradient(135deg, #003366, #0066cc); }
+        thead th { color: white; padding: 14px 16px; text-align: left; font-size: 13px; font-weight: 600; }
+        tbody tr { border-bottom: 1px solid #f3f4f6; transition: background 0.15s; }
+        tbody tr:hover { background: #f8faff; }
+        tbody td { padding: 13px 16px; font-size: 14px; color: #374151; }
+        .badge {
+            padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600;
+        }
+        .badge-ouvert { background: #d1fae5; color: #065f46; }
+        .badge-complet { background: #fee2e2; color: #991b1b; }
+        .badge-annule { background: #fef3c7; color: #92400e; }
+        .badge-termine { background: #e5e7eb; color: #374151; }
+        .actions { display: flex; gap: 8px; }
+        .btn-edit {
+            padding: 6px 14px; background: #dbeafe; color: #1d4ed8;
+            border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: 600;
+        }
+        .btn-delete {
+            padding: 6px 14px; background: #fee2e2; color: #dc2626;
+            border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: 600;
+            border: none; cursor: pointer;
+        }
+        .empty { text-align: center; padding: 60px; color: #9ca3af; font-size: 16px; }
     </style>
 </head>
 <body>
+<nav class="navbar">
+    <div class="navbar-brand">🎓 IHEC Carthage — Gestion des Événements</div>
+    <div class="navbar-right">
+        <span class="navbar-user" sec:authentication="name">Utilisateur</span>
+        <form th:action="@{/logout}" method="post" style="display:inline;">
+            <button type="submit" class="nav-btn btn-logout">🚪 Déconnexion</button>
+        </form>
+    </div>
+</nav>
+
 <div class="container">
-    <h1>Gestion des Événements</h1>
-    <p class="subtitle">Tableau de bord</p>
-    <a th:href="@{/ajouter}" class="btn btn-primary">➕ Ajouter un événement</a>
-    <a th:href="@{/rechercher}" class="btn btn-secondary">🔍 Rechercher un événement</a>
-    <p class="footer">Sélectionnez une action pour continuer</p>
+    <div class="page-header">
+        <h1 class="page-title">📋 Tableau de bord</h1>
+        <div>
+            <a th:href="@{/rechercher}" class="btn-search">🔍 Rechercher</a>
+            <a th:href="@{/ajouter}" class="btn-add" sec:authorize="hasRole('ADMIN')">➕ Ajouter un événement</a>
+        </div>
+    </div>
+
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+    <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+    <div class="table-card">
+        <table>
+            <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Type</th>
+                <th>Date</th>
+                <th>Lieu</th>
+                <th>Capacité</th>
+                <th>Prix</th>
+                <th>Statut</th>
+                <th sec:authorize="hasRole('ADMIN')">Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:if="${#lists.isEmpty(evenements)}">
+                <td colspan="8" class="empty">Aucun événement disponible.</td>
+            </tr>
+            <tr th:each="evt : ${evenements}">
+                <td th:text="${evt.nomEvenement}"></td>
+                <td th:text="${evt.typeEvenement}"></td>
+                <td th:text="${evt.dateEvenement}"></td>
+                <td th:text="${evt.lieu}"></td>
+                <td th:text="${evt.nbreInscrits + ' / ' + evt.capaciteMax}"></td>
+                <td th:text="${evt.prix + ' DT'}"></td>
+                <td>
+                        <span class="badge"
+                              th:classappend="${evt.statut == 'ouvert'} ? 'badge-ouvert' :
+                                             (${evt.statut == 'complet'} ? 'badge-complet' :
+                                             (${evt.statut == 'annulé'} ? 'badge-annule' : 'badge-termine'))"
+                              th:text="${evt.statut}">
+                        </span>
+                </td>
+                <td sec:authorize="hasRole('ADMIN')">
+                    <div class="actions">
+                        <a th:href="@{/modifier/{id}(id=${evt.id})}" class="btn-edit">✏️ Modifier</a>
+                        <form th:action="@{/supprimer/{id}(id=${evt.id})}" method="get" style="display:inline;">
+                            <button type="submit" class="btn-delete"
+                                    onclick="return confirm('Supprimer cet événement ?')">
+                                🗑️ Supprimer
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
 </div>
 </body>
 </html>

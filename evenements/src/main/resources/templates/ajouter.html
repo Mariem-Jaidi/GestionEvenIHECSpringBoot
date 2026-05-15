@@ -5,141 +5,337 @@
     <title>Ajouter un Événement</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; padding: 30px; }
-        .container { max-width: 700px; margin: auto; }
-        h1 { font-size: 28px; color: #1f2937; margin-bottom: 6px; }
-        .subtitle { color: #6b7280; margin-bottom: 30px; }
-        .card { background: white; border: 1px solid #d1d5db; border-radius: 8px; padding: 24px; margin-bottom: 20px; }
-        label { font-weight: bold; font-size: 14px; color: #1f2937; display: block; margin-bottom: 6px; }
-        input, select, textarea { width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; margin-bottom: 16px; font-family: 'Segoe UI', sans-serif; }
-        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-        .btn-submit { background: #2563eb; color: white; font-size: 16px; font-weight: bold; padding: 14px; border: none; border-radius: 6px; cursor: pointer; width: 100%; }
-        .btn-submit:hover { background: #1d4ed8; }
-        .alert-success { background: #d1fae5; border: 1px solid #10b981; color: #065f46; padding: 14px; border-radius: 6px; margin-bottom: 20px; }
-        .alert-error { background: #fee2e2; border: 1px solid #ef4444; color: #991b1b; padding: 14px; border-radius: 6px; margin-bottom: 20px; }
-        .extra-fields { display: none; }
-        .back { display: inline-block; margin-bottom: 20px; color: #2563eb; text-decoration: none; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; min-height: 100vh; }
+        .navbar {
+            background: linear-gradient(135deg, #003366, #0066cc);
+            padding: 0 40px; height: 64px;
+            display: flex; align-items: center; justify-content: space-between;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+        }
+        .navbar-brand { color: white; font-size: 20px; font-weight: 700; }
+        .back-btn {
+            color: white; text-decoration: none; font-size: 14px;
+            padding: 8px 16px; border-radius: 8px;
+            background: rgba(255,255,255,0.15); transition: background 0.2s;
+        }
+        .back-btn:hover { background: rgba(255,255,255,0.25); }
+        .container { max-width: 720px; margin: 36px auto; padding: 0 24px 80px; }
+        .page-header { margin-bottom: 28px; }
+        .page-header h1 { font-size: 28px; font-weight: 700; color: #1f2937; }
+        .alert {
+            padding: 14px 20px; border-radius: 10px; margin-bottom: 20px;
+            font-size: 14px; font-weight: 600;
+        }
+        .alert-success { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
+        .alert-error { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+        .section-card {
+            background: white; border: 1px solid #e5e7eb; border-radius: 16px;
+            padding: 28px; margin-bottom: 20px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+        }
+        .section-title {
+            display: flex; align-items: center; gap: 10px;
+            font-size: 15px; font-weight: 700; color: #003366;
+            margin-bottom: 24px; padding-bottom: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .section-title svg {
+            width: 16px; height: 16px; stroke: #0066cc;
+            stroke-width: 1.8; fill: none;
+            stroke-linecap: round; stroke-linejoin: round;
+        }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .form-group { display: flex; flex-direction: column; margin-bottom: 20px; }
+        .form-group:last-child { margin-bottom: 0; }
+        label {
+            font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px;
+        }
+        input, select, textarea {
+            background: white; border: 1.5px solid #d1d5db; border-radius: 10px;
+            color: #1f2937; font-family: 'Segoe UI', sans-serif;
+            font-size: 14px; padding: 11px 14px; outline: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease; width: 100%;
+        }
+        input:focus, select:focus, textarea:focus {
+            border-color: #0066cc;
+            box-shadow: 0 0 0 3px rgba(0,102,204,0.1);
+        }
+        input::placeholder { color: #9ca3af; }
+        select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: right 14px center;
+            background-size: 12px; cursor: pointer; appearance: none;
+        }
+        textarea { resize: vertical; min-height: 90px; }
+        .type-selector { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .type-option { position: relative; }
+        .type-option input[type="radio"] { position: absolute; opacity: 0; width: 0; height: 0; }
+        .type-option label {
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; gap: 10px; padding: 18px 10px;
+            background: #f9fafb; border: 1.5px solid #e5e7eb; border-radius: 10px;
+            cursor: pointer; transition: all 0.2s ease; text-align: center;
+            font-size: 13px; font-weight: 600; color: #6b7280;
+        }
+        .type-option label svg {
+            width: 22px; height: 22px; stroke: #9ca3af;
+            stroke-width: 1.5; fill: none;
+            stroke-linecap: round; stroke-linejoin: round; transition: stroke 0.2s;
+        }
+        .type-option input[type="radio"]:checked + label {
+            border-color: #0066cc; background: #eff6ff;
+            color: #003366; box-shadow: 0 0 0 3px rgba(0,102,204,0.1);
+        }
+        .type-option input[type="radio"]:checked + label svg { stroke: #0066cc; }
+        .type-option label:hover { border-color: #93c5fd; color: #1f2937; }
+        .status-group { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+        .status-option { position: relative; }
+        .status-option input[type="radio"] { position: absolute; opacity: 0; width: 0; height: 0; }
+        .status-option label {
+            display: flex; align-items: center; justify-content: center;
+            padding: 10px 6px; background: #f9fafb; border: 1.5px solid #e5e7eb;
+            border-radius: 8px; cursor: pointer; font-size: 13px;
+            font-weight: 600; color: #6b7280; transition: all 0.2s;
+        }
+        .status-option input[type="radio"]:checked + label {
+            background: #eff6ff; border-color: #0066cc; color: #003366;
+        }
+        .divider { height: 1px; background: #e5e7eb; margin: 24px 0; }
+        .btn-submit {
+            width: 100%; padding: 16px;
+            background: linear-gradient(135deg, #0066cc, #003366);
+            color: white; font-family: 'Segoe UI', sans-serif;
+            font-size: 15px; font-weight: 700; border: none;
+            border-radius: 10px; cursor: pointer; transition: opacity 0.2s;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+        }
+        .btn-submit svg {
+            width: 18px; height: 18px; stroke: white;
+            stroke-width: 2; fill: none;
+            stroke-linecap: round; stroke-linejoin: round;
+        }
+        .btn-submit:hover { opacity: 0.9; }
+        @media (max-width: 560px) {
+            .form-row { grid-template-columns: 1fr; }
+            .type-selector { grid-template-columns: 1fr; }
+            .status-group { grid-template-columns: repeat(2, 1fr); }
+            .section-card { padding: 20px; }
+        }
     </style>
 </head>
 <body>
+
+<nav class="navbar">
+    <div class="navbar-brand">🎓 IHEC Carthage — Gestion des Événements</div>
+    <a th:href="@{/dashboard}" class="back-btn">← Retour au dashboard</a>
+</nav>
+
 <div class="container">
-    <a th:href="@{/}" class="back">← Retour au dashboard</a>
-    <h1>➕ Ajouter un Événement</h1>
-    <p class="subtitle">Remplissez le formulaire pour créer un événement</p>
 
-    <div th:if="${message}" th:class="${succes} ? 'alert-success' : 'alert-error'" th:text="${message}"></div>
+    <div class="page-header">
+        <h1>➕ Nouvel Événement</h1>
+    </div>
 
-    <form th:action="@{/ajouter}" method="post">
-        <div class="card">
-            <label>Type d'événement</label>
-            <select name="typeEvenement" id="typeEvenement" onchange="afficherChamps()">
-                <option value="Conférence">Conférence</option>
-                <option value="Atelier">Atelier</option>
-                <option value="Evenement social">Événement Social</option>
-            </select>
+    <form th:action="@{/ajouter}" method="post" id="eventForm">
 
-            <label>Nom de l'événement</label>
-            <input type="text" name="nomEvenement" required />
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
-            <div class="row">
-                <div>
+        <div th:if="${error}" class="alert alert-error">
+            ❌ <span th:text="${error}"></span>
+        </div>
+        <div th:if="${success}" class="alert alert-success">
+            ✅ <span th:text="${success}"></span>
+        </div>
+
+        <!-- Type -->
+        <div class="section-card">
+            <div class="section-title">
+                <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                Type d'événement
+            </div>
+            <div class="type-selector">
+                <div class="type-option">
+                    <input type="radio" name="type" id="typeConf" value="Conference" checked onchange="afficherChamps()">
+                    <label for="typeConf">
+                        <svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+                        Conférence
+                    </label>
+                </div>
+                <div class="type-option">
+                    <input type="radio" name="type" id="typeAtel" value="Atelier" onchange="afficherChamps()">
+                    <label for="typeAtel">
+                        <svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                        Atelier
+                    </label>
+                </div>
+                <div class="type-option">
+                    <input type="radio" name="type" id="typeSoc" value="EvenementSocial" onchange="afficherChamps()">
+                    <label for="typeSoc">
+                        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        Social
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Infos générales -->
+        <div class="section-card">
+            <div class="section-title">
+                <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                Informations générales
+            </div>
+            <div class="form-group">
+                <label>Nom de l'événement</label>
+                <input type="text" name="nomEvenement" placeholder="Ex : Conférence Intelligence Artificielle 2025" required />
+            </div>
+            <div class="form-row">
+                <div class="form-group">
                     <label>Date</label>
-                    <input type="date" name="date" required />
+                    <input type="date" name="date" required/>
                 </div>
-                <div>
+                <div class="form-group">
                     <label>Lieu</label>
-                    <input type="text" name="lieu" required />
+                    <input type="text" name="lieu" placeholder="Ex : IHEC - Salle A1" required />
                 </div>
             </div>
-
-            <div class="row">
-                <div>
+            <div class="form-row">
+                <div class="form-group">
                     <label>Heure début</label>
-                    <input type="time" name="heureDebut" required />
+                    <input type="time" name="heureDebut" min="09:00" max="18:00" required />
                 </div>
-                <div>
+                <div class="form-group">
                     <label>Heure fin</label>
-                    <input type="time" name="heureFin" required />
+                    <input type="time" name="heureFin" min="09:00" max="18:00" required />
                 </div>
             </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea name="description" placeholder="Décrivez l'événement en quelques lignes…" required></textarea>
+            </div>
+        </div>
 
-            <label>Description</label>
-            <textarea name="description" rows="3" required></textarea>
-
-            <div class="row">
-                <div>
+        <!-- Participants & Organisation -->
+        <div class="section-card">
+            <div class="section-title">
+                <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                Participants &amp; Organisation
+            </div>
+            <div class="form-row">
+                <div class="form-group">
                     <label>Capacité maximale</label>
-                    <input type="number" name="capaciteMax" min="1" required />
+                    <input type="number" name="capaciteMax" min="1" placeholder="100" required />
                 </div>
-                <div>
+                <div class="form-group">
                     <label>Nombre d'inscrits</label>
                     <input type="number" name="nbreInscrits" min="0" value="0" required />
                 </div>
             </div>
-
-            <div class="row">
-                <div>
+            <div class="form-row">
+                <div class="form-group">
                     <label>Organisateur</label>
-                    <input type="text" name="organisateur" required />
+                    <input type="text" name="organisateur" placeholder="Nom ou organisation" required />
                 </div>
-                <div>
+                <div class="form-group">
                     <label>Prix (DT)</label>
                     <input type="number" name="prix" min="0" step="0.01" value="0" required />
                 </div>
             </div>
-
-            <label>Statut</label>
-            <select name="statut">
-                <option value="ouvert">Ouvert</option>
-                <option value="complet">Complet</option>
-                <option value="annulé">Annulé</option>
-                <option value="terminé">Terminé</option>
-            </select>
+            <div class="divider"></div>
+            <label style="margin-bottom:12px;display:block;font-weight:600;color:#374151;">Statut</label>
+            <div class="status-group">
+                <div class="status-option">
+                    <input type="radio" name="statut" id="statOuvert" value="ouvert" checked>
+                    <label for="statOuvert">Ouvert</label>
+                </div>
+                <div class="status-option">
+                    <input type="radio" name="statut" id="statComplet" value="complet">
+                    <label for="statComplet">Complet</label>
+                </div>
+                <div class="status-option">
+                    <input type="radio" name="statut" id="statAnnule" value="annulé">
+                    <label for="statAnnule">Annulé</label>
+                </div>
+                <div class="status-option">
+                    <input type="radio" name="statut" id="statTermine" value="terminé">
+                    <label for="statTermine">Terminé</label>
+                </div>
+            </div>
         </div>
 
-        <!-- Champs Conférence -->
-        <div class="card extra-fields" id="champsConference">
-            <label>Intervenant</label>
-            <input type="text" name="intervenant" />
-            <label>Domaine</label>
-            <input type="text" name="domaine" />
+        <!-- Conférence -->
+        <div class="section-card" id="champsConference">
+            <div class="section-title">
+                <svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+                Détails — Conférence
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Intervenant</label>
+                    <input type="text" name="intervenant" placeholder="Nom de l'intervenant" />
+                </div>
+                <div class="form-group">
+                    <label>Domaine</label>
+                    <input type="text" name="domaine" placeholder="Ex : Intelligence Artificielle" />
+                </div>
+            </div>
         </div>
 
-        <!-- Champs Atelier -->
-        <div class="card extra-fields" id="champsAtelier">
-            <label>Matériel nécessaire</label>
-            <input type="text" name="materielNecessaire" />
-            <label>Niveau</label>
-            <select name="niveau">
-                <option value="débutant">Débutant</option>
-                <option value="intermédiaire">Intermédiaire</option>
-                <option value="avancé">Avancé</option>
-            </select>
+        <!-- Atelier -->
+        <div class="section-card" id="champsAtelier" style="display:none;">
+            <div class="section-title">
+                <svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                Détails — Atelier
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Matériel nécessaire</label>
+                    <input type="text" name="materielNecessaire" placeholder="Ex : Ordinateur portable" />
+                </div>
+                <div class="form-group">
+                    <label>Niveau</label>
+                    <select name="niveau">
+                        <option value="débutant">Débutant</option>
+                        <option value="intermédiaire">Intermédiaire</option>
+                        <option value="avancé">Avancé</option>
+                    </select>
+                </div>
+            </div>
         </div>
 
-        <!-- Champs Événement Social -->
-        <div class="card extra-fields" id="champsSocial">
-            <label>Thème</label>
-            <input type="text" name="theme" />
-            <label>Rafraîchissements</label>
-            <input type="text" name="refreshments" />
+        <!-- Social -->
+        <div class="section-card" id="champsSocial" style="display:none;">
+            <div class="section-title">
+                <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                Détails — Événement Social
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Thème</label>
+                    <input type="text" name="theme" placeholder="Ex : Gala de fin d'année" />
+                </div>
+                <div class="form-group">
+                    <label>Rafraîchissements</label>
+                    <input type="text" name="refreshments" placeholder="Ex : Cocktail, buffet" />
+                </div>
+            </div>
         </div>
 
-        <button type="submit" class="btn-submit">➕ Ajouter l'événement</button>
+        <button type="submit" class="btn-submit">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Créer l'événement
+        </button>
+
     </form>
 </div>
 
 <script>
     function afficherChamps() {
-        var type = document.getElementById('typeEvenement').value;
-        document.getElementById('champsConference').style.display = 'none';
-        document.getElementById('champsAtelier').style.display = 'none';
-        document.getElementById('champsSocial').style.display = 'none';
-        if (type === 'Conférence') document.getElementById('champsConference').style.display = 'block';
-        else if (type === 'Atelier') document.getElementById('champsAtelier').style.display = 'block';
-        else document.getElementById('champsSocial').style.display = 'block';
+        var type = document.querySelector('input[name="type"]:checked').value;
+        document.getElementById('champsConference').style.display = (type === 'Conference') ? 'block' : 'none';
+        document.getElementById('champsAtelier').style.display = (type === 'Atelier') ? 'block' : 'none';
+        document.getElementById('champsSocial').style.display = (type === 'EvenementSocial') ? 'block' : 'none';
     }
-    afficherChamps();
 </script>
+
 </body>
 </html>

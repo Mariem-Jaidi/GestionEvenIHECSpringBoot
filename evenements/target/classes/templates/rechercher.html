@@ -2,68 +2,158 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Rechercher un Événement</title>
+    <title>Rechercher - IHEC Événements</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; padding: 30px; }
-        .container { max-width: 700px; margin: auto; }
-        h1 { font-size: 28px; color: #1f2937; margin-bottom: 6px; }
-        .subtitle { color: #6b7280; margin-bottom: 30px; }
-        .card { background: white; border: 1px solid #d1d5db; border-radius: 8px; padding: 24px; margin-bottom: 20px; }
-        label { font-weight: bold; font-size: 14px; color: #1f2937; display: block; margin-bottom: 6px; }
-        .input-row { display: flex; gap: 12px; }
-        input[type="text"] { flex: 1; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; }
-        .btn { background: #2563eb; color: white; font-size: 14px; font-weight: bold; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; }
-        .btn:hover { background: #1d4ed8; }
-        .alert-error { background: #fee2e2; border: 1px solid #ef4444; color: #991b1b; padding: 14px; border-radius: 6px; }
-        .result-title { font-size: 16px; font-weight: bold; color: #1f2937; margin-bottom: 16px; }
-        .result-box { background: #f9fafb; border: 1px solid #d1d5db; border-radius: 6px; padding: 16px; font-size: 13px; line-height: 2; }
-        .result-box .row-item { display: flex; gap: 8px; }
-        .result-box .row-item span:first-child { font-weight: bold; min-width: 160px; }
-        .placeholder { color: #6b7280; font-style: italic; }
-        .back { display: inline-block; margin-bottom: 20px; color: #2563eb; text-decoration: none; }
-        .success-badge { color: #065f46; background: #d1fae5; padding: 2px 10px; border-radius: 12px; font-size: 13px; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; min-height: 100vh; }
+        .navbar {
+            background: linear-gradient(135deg, #003366, #0066cc);
+            padding: 0 40px; height: 64px;
+            display: flex; align-items: center; justify-content: space-between;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+        }
+        .navbar-brand { color: white; font-size: 20px; font-weight: 700; }
+        .back-btn {
+            color: white; text-decoration: none; font-size: 14px;
+            padding: 8px 16px; border-radius: 8px;
+            background: rgba(255,255,255,0.15);
+        }
+        .container { max-width: 1100px; margin: 36px auto; padding: 0 24px; }
+        .filter-card {
+            background: white; border-radius: 16px; padding: 28px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07); margin-bottom: 28px;
+        }
+        .filter-card h2 { font-size: 18px; color: #1f2937; margin-bottom: 20px; }
+        .filter-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap: 14px; align-items: end; }
+        label { font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px; display: block; }
+        input, select {
+            width: 100%; padding: 10px 14px; border: 1.5px solid #d1d5db;
+            border-radius: 10px; font-size: 14px; color: #1f2937;
+            outline: none; font-family: 'Segoe UI', sans-serif;
+        }
+        input:focus, select:focus { border-color: #0066cc; }
+        .btn-search {
+            padding: 10px 24px; background: linear-gradient(135deg, #0066cc, #003366);
+            color: white; border: none; border-radius: 10px;
+            font-size: 14px; font-weight: 700; cursor: pointer; white-space: nowrap;
+        }
+        .btn-reset {
+            padding: 10px 16px; background: #f3f4f6; color: #374151;
+            border: 1.5px solid #d1d5db; border-radius: 10px;
+            font-size: 14px; font-weight: 600; cursor: pointer; text-decoration: none;
+            display: inline-block; margin-left: 8px;
+        }
+        .results-header {
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;
+        }
+        .results-count { font-size: 15px; color: #6b7280; }
+        .table-card {
+            background: white; border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07); overflow: hidden;
+        }
+        table { width: 100%; border-collapse: collapse; }
+        thead { background: linear-gradient(135deg, #003366, #0066cc); }
+        thead th { color: white; padding: 14px 16px; text-align: left; font-size: 13px; font-weight: 600; }
+        tbody tr { border-bottom: 1px solid #f3f4f6; }
+        tbody tr:hover { background: #f8faff; }
+        tbody td { padding: 13px 16px; font-size: 14px; color: #374151; }
+        .badge { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .badge-ouvert { background: #d1fae5; color: #065f46; }
+        .badge-complet { background: #fee2e2; color: #991b1b; }
+        .badge-annule { background: #fef3c7; color: #92400e; }
+        .badge-termine { background: #e5e7eb; color: #374151; }
+        .empty { text-align: center; padding: 60px; color: #9ca3af; font-size: 16px; }
     </style>
 </head>
 <body>
-<div class="container">
-    <a th:href="@{/}" class="back">← Retour au dashboard</a>
-    <h1>🔍 Rechercher un Événement</h1>
-    <p class="subtitle">Entrez le nom exact de l'événement</p>
+<nav class="navbar">
+    <div class="navbar-brand">🎓 IHEC Carthage — Gestion des Événements</div>
+    <a th:href="@{/dashboard}" class="back-btn">← Retour au dashboard</a>
+</nav>
 
-    <div class="card">
-        <label>Nom de l'événement</label>
-        <form th:action="@{/rechercher}" method="post">
-            <div class="input-row">
-                <input type="text" name="nomRecherche" th:value="${nomRecherche}" placeholder="Ex: Conférence Intelligence Artificielle" />
-                <button type="submit" class="btn">🔍 Rechercher</button>
+<div class="container">
+    <form th:action="@{/rechercher}" method="get">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+        <div class="filter-card">
+            <h2>🔍 Filtrer et trier les événements</h2>
+            <div class="filter-grid">
+                <div>
+                    <label>Nom de l'événement</label>
+                    <input type="text" name="nom" th:value="${nom}" placeholder="Rechercher par nom..."/>
+                </div>
+                <div>
+                    <label>Type</label>
+                    <select name="type">
+                        <option value="">Tous les types</option>
+                        <option value="Conférence"    th:selected="${type == 'Conférence'}">Conférence</option>
+                        <option value="Atelier"       th:selected="${type == 'Atelier'}">Atelier</option>
+                        <option value="EvenementSocial" th:selected="${type == 'EvenementSocial'}">Événement Social</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Statut</label>
+                    <select name="statut">
+                        <option value="">Tous les statuts</option>
+                        <option value="ouvert"  th:selected="${statut == 'ouvert'}">Ouvert</option>
+                        <option value="complet" th:selected="${statut == 'complet'}">Complet</option>
+                        <option value="annulé"  th:selected="${statut == 'annulé'}">Annulé</option>
+                        <option value="terminé" th:selected="${statut == 'terminé'}">Terminé</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Trier par</label>
+                    <select name="tri">
+                        <option value="">Sans tri</option>
+                        <option value="nom"      th:selected="${tri == 'nom'}">Nom (A-Z)</option>
+                        <option value="date"     th:selected="${tri == 'date'}">Date</option>
+                        <option value="prix"     th:selected="${tri == 'prix'}">Prix (croissant)</option>
+                        <option value="capacite" th:selected="${tri == 'capacite'}">Capacité (décroissant)</option>
+                    </select>
+                </div>
+                <div style="display:flex; gap:8px;">
+                    <button type="submit" class="btn-search">Filtrer</button>
+                    <a th:href="@{/rechercher}" class="btn-reset">✕</a>
+                </div>
             </div>
-        </form>
+        </div>
+    </form>
+
+    <div class="results-header">
+        <span class="results-count"
+              th:text="${resultats != null} ? ${resultats.size()} + ' résultat(s) trouvé(s)' : 'Entrez un filtre pour rechercher'">
+        </span>
     </div>
 
-    <div class="card">
-        <p class="result-title">📋 Résultat de la recherche</p>
-
-        <div th:if="${erreur}" class="alert-error" th:text="${erreur}"></div>
-
-        <div th:if="${evenement}" class="result-box">
-            <p><span class="success-badge">✅ Événement trouvé !</span></p>
-            <br/>
-            <div class="row-item"><span>📌 NOM :</span><span th:text="${evenement.nomEvenement}"></span></div>
-            <div class="row-item"><span>🏷️ TYPE :</span><span th:text="${evenement.typeEvenement}"></span></div>
-            <div class="row-item"><span>📅 DATE :</span><span th:text="${evenement.dateEvenement}"></span></div>
-            <div class="row-item"><span>🕐 HORAIRE :</span><span th:text="${evenement.heureDebut + ' - ' + evenement.heureFin}"></span></div>
-            <div class="row-item"><span>📍 LIEU :</span><span th:text="${evenement.lieu}"></span></div>
-            <div class="row-item"><span>👤 ORGANISATEUR :</span><span th:text="${evenement.organisateur}"></span></div>
-            <div class="row-item"><span>📝 DESCRIPTION :</span><span th:text="${evenement.description}"></span></div>
-            <div class="row-item"><span>💰 PRIX :</span><span th:text="${evenement.prix + ' DT'}"></span></div>
-            <div class="row-item"><span>👥 CAPACITÉ :</span><span th:text="${evenement.nbreInscrits + ' / ' + evenement.capaciteMax + ' inscrits'}"></span></div>
-            <div class="row-item"><span>📊 STATUT :</span><span th:text="${evenement.statut}"></span></div>
-        </div>
-
-        <p th:if="${evenement == null and erreur == null}" class="placeholder">
-            Aucune recherche effectuée. Entrez le nom d'un événement et cliquez sur Rechercher.
-        </p>
+    <div class="table-card" th:if="${resultats != null}">
+        <table>
+            <thead>
+            <tr>
+                <th>Nom</th><th>Type</th><th>Date</th>
+                <th>Lieu</th><th>Capacité</th><th>Prix</th><th>Statut</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:if="${#lists.isEmpty(resultats)}">
+                <td colspan="7" class="empty">Aucun événement ne correspond à votre recherche.</td>
+            </tr>
+            <tr th:each="evt : ${resultats}">
+                <td th:text="${evt.nomEvenement}"></td>
+                <td th:text="${evt.typeEvenement}"></td>
+                <td th:text="${evt.dateEvenement}"></td>
+                <td th:text="${evt.lieu}"></td>
+                <td th:text="${evt.nbreInscrits + ' / ' + evt.capaciteMax}"></td>
+                <td th:text="${evt.prix + ' DT'}"></td>
+                <td>
+                        <span class="badge"
+                              th:classappend="${evt.statut == 'ouvert'} ? 'badge-ouvert' :
+                                             (${evt.statut == 'complet'} ? 'badge-complet' :
+                                             (${evt.statut == 'annulé'} ? 'badge-annule' : 'badge-termine'))"
+                              th:text="${evt.statut}">
+                        </span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
     </div>
 </div>
 </body>

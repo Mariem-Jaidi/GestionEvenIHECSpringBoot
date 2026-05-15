@@ -61,14 +61,7 @@ public class gestionnaire {
             System.out.println("Prix invalide, impossible de l'ajouter.");
             return false;
         }
-        if (e.getPrix() > 0 && !e.necessiteInscription()) {
-            System.out.println("Événement payant doit nécessiter une inscription, impossible de l'ajouter.");
-            return false;
-        }
-        if (e.getPrix() == 0 && e.necessiteInscription()) {
-            System.out.println("Événement gratuit ne doit pas nécessiter une inscription, impossible de l'ajouter.");
-            return false;
-        }
+        //
         if (e.getTypeEvenement().equals("Conférence") && e.getCapaciteMax() < 50) {
             System.out.println("Les conférences doivent avoir une capacité minimale de 50, impossible de l'ajouter.");
             return false;
@@ -156,5 +149,12 @@ public class gestionnaire {
 
     public List<Evenement> getListeEvenements() {
         return evenementRepository.findAll();
+    }
+    public void sauvegarder(Evenement e) {
+        evenementRepository.save(e);
+    }
+
+    public void supprimerParId(Long id) {
+        evenementRepository.deleteById(id);
     }
 }
